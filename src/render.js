@@ -24,13 +24,13 @@ function mount(vnode, container, isSVG) {
   if (flags & VNodeFlags.ELEMENT) {
     mountElement(vnode, container, isSVG)
   } else if (flags & VNodeFlags.COMPONENT) {
-    mountComponent(vnode, container)
+    mountComponent(vnode, container, isSVG)
   } else if (flags & VNodeFlags.TEXT) {
     mountText(vnode, container)
   } else if (flags & VNodeFlags.FRAGMENT) {
-    mountFragment(vnode, container)
+    mountFragment(vnode, container, isSVG)
   } else if (flags & VNodeFlags.PORTAL) {
-    mountPortal(vnode, container)
+    mountPortal(vnode, container, isSVG)
   }
 }
 
@@ -51,6 +51,7 @@ function mountElement(vnode, container, isSVG) {
       if (!data.hasOwnProperty(key)) {
         continue
       }
+      let value = data[key]
       switch (key) {
         case 'style':
           for (let k in data.style) {
@@ -60,9 +61,16 @@ function mountElement(vnode, container, isSVG) {
             el.style[k] = data.style[k]
           }
           break
+        case 'class':
+          if (isSVG) {
+            el.setAttribute(key, value)
+          } else {
+            el.className = value
+          }
+          break
         default:
           if (isSVG) {
-            el.setAttribute(key, data[key])
+            el.setAttribute(key, value)
           }
           break
       }
@@ -85,10 +93,10 @@ function mountElement(vnode, container, isSVG) {
   container.appendChild(el)
 }
 
-function mountComponent(vnode, container) {}
+function mountComponent(vnode, container, isSVG) {}
 
 function mountText(vnode, container) {}
 
-function mountFragment(vnode, container) {}
+function mountFragment(vnode, container, isSVG) {}
 
-function mountPortal(vnode, container) {}
+function mountPortal(vnode, container, isSVG) {}

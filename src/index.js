@@ -7,15 +7,23 @@ const elementVNode = h(
     style: {
       height: '100px',
       width: '100px',
-      background: 'red'
-    }
+      background: '#29e'
+    },
+    class: ['class-a', ['class-b', 'class-c']]
   },
   h('div', {
     style: {
       height: '50px',
       width: '50px',
-      background: 'green'
-    }
+      background: '#f90'
+    },
+    class: [
+      'class-a',
+      {
+        'class-b': true,
+        'class-c': false
+      }
+    ]
   })
 )
 
@@ -80,4 +88,5 @@ const svgVNode = h(
     )
   ]
 )
-render(svgVNode, document.getElementById('app'))
+
+render(elementVNode, document.getElementById('app'))

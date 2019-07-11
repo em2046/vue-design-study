@@ -7,6 +7,9 @@ export function h(tag, data = null, children = null) {
   let flags = null
   if (typeof tag === 'string') {
     flags = tag === 'svg' ? VNodeFlags.ELEMENT_SVG : VNodeFlags.ELEMENT_HTML
+    if (data && data.class) {
+      data.class = normalizeClass(data.class)
+    }
   } else if (tag === Fragment) {
     flags = VNodeFlags.FRAGMENT
   } else if (tag === Portal) {
@@ -67,6 +70,29 @@ function normalizeVNodes(children) {
     newChildren.push(child)
   }
   return newChildren
+}
+
+function normalizeClass(classValue) {
+  let ret = []
+  if (typeof classValue === 'string') {
+    ret.push(classValue)
+  } else if (Array.isArray(classValue)) {
+    classValue.forEach(name => {
+      ret.push(normalizeClass(name))
+    })
+  } else if (typeof classValue === 'object') {
+    for (let name in classValue) {
+      if (!classValue.hasOwnProperty(name)) {
+        continue
+      }
+      let enabled = classValue[name]
+
+      if (enabled) {
+        ret.push(name)
+      }
+    }
+  }
+  return ret.join(' ')
 }
 
 function createTextVNode(text) {
