@@ -1,8 +1,8 @@
 import { VNodeFlags, ChildrenFlags } from './flags'
-import {createTextVNode} from './h'
+import { createTextVNode } from './h'
 
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg'
-const domPropsRE = /[^A-Za-z0-9_-]|^(?:value|checked|selected|muted)$/
+const domPropsRE = /[^\w-]|^(?:value|checked|selected|muted)$/
 
 export default function render(vnode, container) {
   const prevVNode = container.vnode
@@ -37,7 +37,10 @@ function mount(vnode, container, isSVG) {
   }
 }
 
-function patch(prevVNode, vnode, container) {}
+// eslint-disable-next-line no-unused-vars
+function patch(prevVNode, vnode, container) {
+  // TODO
+}
 
 function mountElement(vnode, container, isSVG) {
   isSVG = isSVG || vnode.flags & VNodeFlags.ELEMENT_SVG
@@ -50,19 +53,14 @@ function mountElement(vnode, container, isSVG) {
 
   const data = vnode.data
   if (data) {
-    for (let key in data) {
-      if (!data.hasOwnProperty(key)) {
-        continue
-      }
+    Object.keys(data).forEach(key => {
       let value = data[key]
       switch (key) {
         case 'style':
-          for (let k in data.style) {
-            if (!data.style.hasOwnProperty(k)) {
-              continue
-            }
-            el.style[k] = data.style[k]
-          }
+          Object.keys(data.style).forEach(k => {
+            let style = data.style
+            el.style[k] = style[k]
+          })
           break
         case 'class':
           if (isSVG) {
@@ -81,7 +79,7 @@ function mountElement(vnode, container, isSVG) {
           }
           break
       }
-    }
+    })
   }
 
   const childFlags = vnode.childFlags
@@ -100,7 +98,26 @@ function mountElement(vnode, container, isSVG) {
   container.appendChild(el)
 }
 
-function mountComponent(vnode, container, isSVG) {}
+function mountComponent(vnode, container, isSVG) {
+  if (vnode.flags & VNodeFlags.COMPONENT_STATEFUL) {
+    mountStatefulComponent(vnode, container, isSVG)
+  } else {
+    mountFunctionalComponent(vnode, container, isSVG)
+  }
+}
+
+function mountStatefulComponent(vnode, container, isSVG) {
+  const instance = new vnode.tag()
+  instance.$vnode = instance.render()
+  mount(instance.$vnode, container, isSVG)
+  instance.$el = vnode.el = instance.$vnode.el
+}
+
+function mountFunctionalComponent(vnode, container, isSVG) {
+  const $vnode = vnode.tag()
+  mount($vnode, container, isSVG)
+  vnode.el = $vnode.el
+}
 
 function mountText(vnode, container) {
   const el = document.createTextNode(vnode.children)
@@ -109,20 +126,41 @@ function mountText(vnode, container) {
 }
 
 function mountFragment(vnode, container, isSVG) {
-  const {children, childFlags} = vnode
+  const { children, childFlags } = vnode
   switch (childFlags) {
     case ChildrenFlags.SINGLE_VNODE:
       mount(children, container, isSVG)
+      vnode.el = children.el
       break
     case ChildrenFlags.NO_CHILDREN:
-      const placeholder=createTextVNode('')
-      mountText(placeholder, container)
+      {
+        const placeholder = createTextVNode('')
+        mountText(placeholder, container)
+        vnode.el = placeholder.el
+      }
       break
     default:
       for (let i = 0; i < children.length; i++) {
         mount(children[i], container, isSVG)
       }
+      vnode.el = children[0].el
   }
 }
 
-function mountPortal(vnode, container, isSVG) {}
+function mountPortal(vnode, container, isSVG) {
+  const { tag, children, childFlags } = vnode
+
+  const target = typeof tag === 'string' ? document.querySelector(tag) : tag
+
+  if (childFlags & ChildrenFlags.SINGLE_VNODE) {
+    mount(children, target, isSVG)
+  } else if (childFlags & ChildrenFlags.MULTIPLE_VNODES) {
+    for (let i = 0; i < children.length; i++) {
+      mount(children[0], target, isSVG)
+    }
+  }
+
+  const placeholder = createTextVNode('')
+  mountText(placeholder, container)
+  vnode.el = placeholder.el
+}

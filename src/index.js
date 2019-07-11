@@ -1,10 +1,12 @@
-import { Fragment, h } from './h'
+import { h, Portal } from './h'
 import render from './render'
+import Component from './component'
 
 function handler() {
   console.log('click me')
 }
 
+// eslint-disable-next-line no-unused-vars
 const elementVNode = h(
   'div',
   {
@@ -16,9 +18,16 @@ const elementVNode = h(
     class: ['class-a', ['class-b', 'class-c']],
     onclick: handler
   },
-  h(Fragment, null, [h('div', null, '我是标题1'), h('div', null, '我是标题2')])
+  h(
+    Portal,
+    {
+      target: '#portal-box'
+    },
+    [h('div', null, '我是标题1'), h('div', null, '我是标题2')]
+  )
 )
 
+// eslint-disable-next-line no-unused-vars
 const svgVNode = h(
   'svg',
   {
@@ -81,6 +90,7 @@ const svgVNode = h(
   ]
 )
 
+// eslint-disable-next-line no-unused-vars
 const inputVNode = h('input', {
   class: 'cls-a',
   type: 'checkbox',
@@ -89,4 +99,32 @@ const inputVNode = h('input', {
   innerHTML: 'text'
 })
 
-render(elementVNode, document.getElementById('app'))
+// eslint-disable-next-line no-unused-vars
+class MyStatefulComponent extends Component {
+  render() {
+    return h(
+      'div',
+      {
+        style: {
+          background: '#22ee99'
+        }
+      },
+      [h('div', null, '我是组件的标题1'), h('div', null, '我是组件的标题2')]
+    )
+  }
+}
+
+function MyFunctionalComponent() {
+  return h(
+    'div',
+    {
+      style: {
+        background: '#ee9922'
+      }
+    },
+    [h('div', null, '我是组件的标题1'), h('div', null, '我是组件的标题2')]
+  )
+}
+
+const compVNode = h(MyFunctionalComponent)
+render(compVNode, document.getElementById('app'))

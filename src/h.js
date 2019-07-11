@@ -81,16 +81,11 @@ function normalizeClass(classValue) {
       ret.push(normalizeClass(name))
     })
   } else if (typeof classValue === 'object') {
-    for (let name in classValue) {
-      if (!classValue.hasOwnProperty(name)) {
-        continue
-      }
-      let enabled = classValue[name]
-
-      if (enabled) {
+    Object.keys(classValue).forEach(name => {
+      if (classValue[name]) {
         ret.push(name)
       }
-    }
+    })
   }
   return ret.join(' ')
 }
