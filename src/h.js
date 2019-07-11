@@ -95,14 +95,14 @@ function normalizeClass(classValue) {
   return ret.join(' ')
 }
 
-function createTextVNode(text) {
+export function createTextVNode(text) {
   return {
     _isVNode: true,
     flags: VNodeFlags.TEXT,
     tag: null,
     data: null,
     children: text,
-    childrenFlags: ChildrenFlags.NO_CHILDREN,
+    childFlags: ChildrenFlags.NO_CHILDREN,
     el: null
   }
 }

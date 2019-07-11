@@ -1,5 +1,9 @@
-import { h } from './h'
+import { Fragment, h } from './h'
 import render from './render'
+
+function handler() {
+  console.log('click me')
+}
 
 const elementVNode = h(
   'div',
@@ -7,24 +11,12 @@ const elementVNode = h(
     style: {
       height: '100px',
       width: '100px',
-      background: '#29e'
+      background: '#2299ee'
     },
-    class: ['class-a', ['class-b', 'class-c']]
+    class: ['class-a', ['class-b', 'class-c']],
+    onclick: handler
   },
-  h('div', {
-    style: {
-      height: '50px',
-      width: '50px',
-      background: '#f90'
-    },
-    class: [
-      'class-a',
-      {
-        'class-b': true,
-        'class-c': false
-      }
-    ]
-  })
+  h(Fragment, null, [h('div', null, '我是标题1'), h('div', null, '我是标题2')])
 )
 
 const svgVNode = h(
@@ -88,5 +80,13 @@ const svgVNode = h(
     )
   ]
 )
+
+const inputVNode = h('input', {
+  class: 'cls-a',
+  type: 'checkbox',
+  checked: true,
+  'data-custom': '42',
+  innerHTML: 'text'
+})
 
 render(elementVNode, document.getElementById('app'))

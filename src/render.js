@@ -1,6 +1,9 @@
 import { VNodeFlags, ChildrenFlags } from './flags'
+import {createTextVNode} from './h'
 
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg'
+const domPropsRE = /[^A-Za-z0-9_-]|^(?:value|checked|selected|muted)$/
+
 export default function render(vnode, container) {
   const prevVNode = container.vnode
   if (prevVNode == null) {
@@ -69,7 +72,11 @@ function mountElement(vnode, container, isSVG) {
           }
           break
         default:
-          if (isSVG) {
+          if (key[0] === 'o' && key[1] === 'n') {
+            el.addEventListener(key.slice(2), value)
+          } else if (domPropsRE.test(key)) {
+            el[key] = value
+          } else {
             el.setAttribute(key, value)
           }
           break
@@ -77,12 +84,12 @@ function mountElement(vnode, container, isSVG) {
     }
   }
 
-  const childrenFlags = vnode.childFlags
+  const childFlags = vnode.childFlags
   const children = vnode.children
-  if (childrenFlags !== ChildrenFlags.NO_CHILDREN) {
-    if (childrenFlags & ChildrenFlags.SINGLE_VNODE) {
+  if (childFlags !== ChildrenFlags.NO_CHILDREN) {
+    if (childFlags & ChildrenFlags.SINGLE_VNODE) {
       mount(children, el, isSVG)
-    } else if (childrenFlags & ChildrenFlags.MULTIPLE_VNODES) {
+    } else if (childFlags & ChildrenFlags.MULTIPLE_VNODES) {
       for (let i = 0; i < children.length; i++) {
         let child = children[i]
         mount(child, el, isSVG)
@@ -95,8 +102,27 @@ function mountElement(vnode, container, isSVG) {
 
 function mountComponent(vnode, container, isSVG) {}
 
-function mountText(vnode, container) {}
+function mountText(vnode, container) {
+  const el = document.createTextNode(vnode.children)
+  vnode.el = el
+  container.appendChild(el)
+}
 
-function mountFragment(vnode, container, isSVG) {}
+function mountFragment(vnode, container, isSVG) {
+  const {children, childFlags} = vnode
+  switch (childFlags) {
+    case ChildrenFlags.SINGLE_VNODE:
+      mount(children, container, isSVG)
+      break
+    case ChildrenFlags.NO_CHILDREN:
+      const placeholder=createTextVNode('')
+      mountText(placeholder, container)
+      break
+    default:
+      for (let i = 0; i < children.length; i++) {
+        mount(children[i], container, isSVG)
+      }
+  }
+}
 
 function mountPortal(vnode, container, isSVG) {}
