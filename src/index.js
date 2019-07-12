@@ -141,27 +141,26 @@ const compVNode = h(MyStatefulComponent)
 
 const prevVNode = h(
   'div',
-  {
+  null,
+  h('p', {
     style: {
-      width: '100px',
       height: '100px',
-      backgroundColor: '#ee9922'
-    },
-    onclick: handler
-  },
-  '旧的VNode'
+      width: '100px',
+      background: '#e92'
+    }
+  })
 )
 
 const nextVNode = h(
   'div',
-  {
-    style: {
-      width: '100px',
+  null,
+  h('p', {
+    style:{
       height: '100px',
-      border: '1px solid #22ee99'
+      width: '100px',
+      background: '#29e'
     }
-  },
-  '新的VNode'
+  })
 )
 
 render(prevVNode, document.getElementById('app'))

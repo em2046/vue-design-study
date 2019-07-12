@@ -66,12 +66,10 @@ function mountElement(vnode, container, isSVG) {
   }
 
   container.appendChild(el)
-  vnode.ref && vnode.ref(el)
 }
 
 function mountText(vnode, container) {
   const el = document.createTextNode(vnode.children)
-  vnode.el = el
   container.appendChild(el)
 }
 
@@ -185,6 +183,56 @@ function patchElement(prevVNode, nextVNode, container) {
         patchData(el, key, prevValue, null)
       }
     })
+  }
+
+  patchChildren(
+    prevVNode.childFlags,
+    nextVNode.childFlags,
+    prevVNode.children,
+    nextVNode.children,
+    el
+  )
+}
+
+function patchChildren(
+  prevChildFlags,
+  nextChildFlags,
+  prevChildren,
+  nextChildren,
+  container
+) {
+  switch (prevChildFlags) {
+    case ChildrenFlags.SINGLE_VNODE:
+      switch (nextChildFlags) {
+        case ChildrenFlags.SINGLE_VNODE:
+          patch(prevChildren, nextChildren, container)
+          break
+        case ChildrenFlags.NO_CHILDREN:
+          break
+        default:
+          break
+      }
+      break
+    case ChildrenFlags.NO_CHILDREN:
+      switch (nextChildFlags) {
+        case ChildrenFlags.SINGLE_VNODE:
+          break
+        case ChildrenFlags.NO_CHILDREN:
+          break
+        default:
+          break
+      }
+      break
+    default:
+      switch (nextChildFlags) {
+        case ChildrenFlags.SINGLE_VNODE:
+          break
+        case ChildrenFlags.NO_CHILDREN:
+          break
+        default:
+          break
+      }
+      break
   }
 }
 
