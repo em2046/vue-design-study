@@ -22,6 +22,7 @@ export default function render(vnode, container) {
   }
 }
 
+// region mount
 function mount(vnode, container, isSVG) {
   const { flags } = vnode
   if (flags & VNodeFlags.ELEMENT) {
@@ -70,6 +71,7 @@ function mountElement(vnode, container, isSVG) {
 
 function mountText(vnode, container) {
   const el = document.createTextNode(vnode.children)
+  vnode.el = el
   container.appendChild(el)
 }
 
@@ -129,8 +131,9 @@ function mountFunctionalComponent(vnode, container, isSVG) {
   mount($vnode, container, isSVG)
   vnode.el = $vnode.el
 }
+// endregion
 
-// eslint-disable-next-line no-unused-vars
+// region patch
 function patch(prevVNode, nextVNode, container) {
   const nextFlags = nextVNode.flags
   const prevFlags = prevVNode.flags
@@ -224,7 +227,7 @@ function patchChildren(
           mount(nextChildren, container)
           break
         case ChildrenFlags.NO_CHILDREN:
-          //do nothing
+          // Do nothing
           break
         default:
           for (let i = 0; i < nextChildren.length; i++) {
@@ -261,8 +264,65 @@ function patchChildren(
 
 function patchComponent() {}
 
-function patchText() {}
+function patchText(prevVNode, nextVNode) {
+  const el = (nextVNode.el = prevVNode.el)
+  if (nextVNode.children !== prevVNode.children) {
+    el.nodeValue = nextVNode.children
+  }
+}
 
-function patchFragment() {}
+function patchFragment(prevVNode, nextVNode, container) {
+  patchChildren(
+    prevVNode.childFlags,
+    nextVNode.childFlags,
+    prevVNode.children,
+    nextVNode.children,
+    container
+  )
 
-function patchPortal() {}
+  switch (nextVNode.childFlags) {
+    case ChildrenFlags.SINGLE_VNODE:
+      nextVNode.el = nextVNode.children.el
+      break
+    case ChildrenFlags.NO_CHILDREN:
+      nextVNode.el = prevVNode.el
+      break
+    default:
+      nextVNode.el = nextVNode.children[0].el
+      break
+  }
+}
+
+function patchPortal(prevVNode, nextVNode) {
+  patchChildren(
+    prevVNode.childFlags,
+    nextVNode.childFlags,
+    prevVNode.children,
+    nextVNode.children,
+    prevVNode.tag
+  )
+
+  nextVNode.el = prevVNode.el
+
+  if (nextVNode.tag !== prevVNode.tag) {
+    const container =
+      typeof nextVNode.tag === 'string'
+        ? document.querySelector(nextVNode.tag)
+        : nextVNode.tag
+
+    switch (nextVNode.childFlags) {
+      case ChildrenFlags.SINGLE_VNODE:
+        container.appendChild(nextVNode.children.el)
+        break
+      case ChildrenFlags.NO_CHILDREN:
+        // Do nothing
+        break
+      default:
+        for (let i = 0; i < nextVNode.children.length; i++) {
+          container.appendChild(nextVNode.children[i].el)
+        }
+        break
+    }
+  }
+}
+// endregion

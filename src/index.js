@@ -6,7 +6,7 @@ function handler() {
   console.log('click me')
 }
 
-//region elementVNode
+// region elementVNode
 // eslint-disable-next-line no-unused-vars
 const elementVNode = h(
   'div',
@@ -27,9 +27,9 @@ const elementVNode = h(
     [h('div', null, '我是标题1'), h('div', null, '我是标题2')]
   )
 )
-//endregion
+// endregion
 
-//region svgVNode
+// region svgVNode
 // eslint-disable-next-line no-unused-vars
 const svgVNode = h(
   'svg',
@@ -92,9 +92,9 @@ const svgVNode = h(
     )
   ]
 )
-//endregion
+// endregion
 
-//region inputVNode
+// region inputVNode
 // eslint-disable-next-line no-unused-vars
 const inputVNode = h('input', {
   class: 'cls-a',
@@ -103,9 +103,9 @@ const inputVNode = h('input', {
   'data-custom': '42',
   innerHTML: 'text'
 })
-//endregion
+// endregion
 
-//region componentVNode
+// region componentVNode
 // eslint-disable-next-line no-unused-vars
 class MyStatefulComponent extends Component {
   render() {
@@ -137,17 +137,23 @@ function MyFunctionalComponent() {
 // eslint-disable-next-line no-unused-vars
 const compVNode = h(MyStatefulComponent)
 // render(compVNode, document.getElementById('app'))
-//endregion
+// endregion
 
-const prevVNode = h('div', null, [
-  h('p', null, '旧的子节点1'),
-  h('p', null, '旧的子节点2')
-])
+const prevVNode = h(
+  Portal,
+  {
+    target: '#old-container'
+  },
+  h('p', null, '旧的Portal')
+)
 
-const nextVNode = h('div', null, [
-  h('p', null, '新的子节点1'),
-  h('p', null, '新的子节点2')
-])
+const nextVNode = h(
+  Portal,
+  {
+    target: '#new-container'
+  },
+  h('p', null, '新的Portal')
+)
 
 render(prevVNode, document.getElementById('app'))
 
