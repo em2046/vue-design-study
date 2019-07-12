@@ -2,10 +2,7 @@ import { h, Portal } from './h'
 import render from './render'
 import Component from './component'
 
-function handler() {
-  console.log('click me')
-}
-
+//region elementVNode
 // eslint-disable-next-line no-unused-vars
 const elementVNode = h(
   'div',
@@ -27,6 +24,13 @@ const elementVNode = h(
   )
 )
 
+function handler() {
+  console.log('click me')
+}
+
+//endregion
+
+//region svgVNode
 // eslint-disable-next-line no-unused-vars
 const svgVNode = h(
   'svg',
@@ -89,7 +93,9 @@ const svgVNode = h(
     )
   ]
 )
+//endregion
 
+//region inputVNode
 // eslint-disable-next-line no-unused-vars
 const inputVNode = h('input', {
   class: 'cls-a',
@@ -98,7 +104,9 @@ const inputVNode = h('input', {
   'data-custom': '42',
   innerHTML: 'text'
 })
+//endregion
 
+//region componentVNode
 // eslint-disable-next-line no-unused-vars
 class MyStatefulComponent extends Component {
   render() {
@@ -114,6 +122,7 @@ class MyStatefulComponent extends Component {
   }
 }
 
+// eslint-disable-next-line no-unused-vars
 function MyFunctionalComponent() {
   return h(
     'div',
@@ -126,5 +135,22 @@ function MyFunctionalComponent() {
   )
 }
 
-const compVNode = h(MyFunctionalComponent)
-render(compVNode, document.getElementById('app'))
+// eslint-disable-next-line no-unused-vars
+const compVNode = h(MyStatefulComponent)
+// render(compVNode, document.getElementById('app'))
+//endregion
+
+const prevVNode = h('div', null, '旧的VNode')
+
+class MyComponent {
+  render() {
+    return h('div', null, '新的VNode')
+  }
+}
+
+const nextVNode = h(MyComponent)
+
+render(prevVNode, document.getElementById('app'))
+setTimeout(() => {
+  render(nextVNode, document.getElementById('app'))
+}, 2 * 1000)

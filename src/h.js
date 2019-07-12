@@ -37,7 +37,7 @@ export function h(tag, data = null, children = null) {
       childFlags = ChildrenFlags.SINGLE_VNODE
       children = children[0]
     } else {
-      childFlags = ChildrenFlags.KEYED_VNODE
+      childFlags = ChildrenFlags.KEYED_VNODES
       children = normalizeVNodes(children)
     }
   } else if (children == null) {
@@ -97,7 +97,6 @@ export function createTextVNode(text) {
     tag: null,
     data: null,
     children: text,
-    childFlags: ChildrenFlags.NO_CHILDREN,
-    el: null
+    childFlags: ChildrenFlags.NO_CHILDREN
   }
 }

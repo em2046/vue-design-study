@@ -37,11 +37,6 @@ function mount(vnode, container, isSVG) {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
-function patch(prevVNode, vnode, container) {
-  // TODO
-}
-
 function mountElement(vnode, container, isSVG) {
   isSVG = isSVG || vnode.flags & VNodeFlags.ELEMENT_SVG
 
@@ -89,34 +84,13 @@ function mountElement(vnode, container, isSVG) {
       mount(children, el, isSVG)
     } else if (childFlags & ChildrenFlags.MULTIPLE_VNODES) {
       for (let i = 0; i < children.length; i++) {
-        let child = children[i]
-        mount(child, el, isSVG)
+        mount(children[i], el, isSVG)
       }
     }
   }
 
   container.appendChild(el)
-}
-
-function mountComponent(vnode, container, isSVG) {
-  if (vnode.flags & VNodeFlags.COMPONENT_STATEFUL) {
-    mountStatefulComponent(vnode, container, isSVG)
-  } else {
-    mountFunctionalComponent(vnode, container, isSVG)
-  }
-}
-
-function mountStatefulComponent(vnode, container, isSVG) {
-  const instance = new vnode.tag()
-  instance.$vnode = instance.render()
-  mount(instance.$vnode, container, isSVG)
-  instance.$el = vnode.el = instance.$vnode.el
-}
-
-function mountFunctionalComponent(vnode, container, isSVG) {
-  const $vnode = vnode.tag()
-  mount($vnode, container, isSVG)
-  vnode.el = $vnode.el
+  vnode.ref && vnode.ref(el)
 }
 
 function mountText(vnode, container) {
@@ -130,20 +104,17 @@ function mountFragment(vnode, container, isSVG) {
   switch (childFlags) {
     case ChildrenFlags.SINGLE_VNODE:
       mount(children, container, isSVG)
-      vnode.el = children.el
       break
     case ChildrenFlags.NO_CHILDREN:
       {
         const placeholder = createTextVNode('')
         mountText(placeholder, container)
-        vnode.el = placeholder.el
       }
       break
     default:
       for (let i = 0; i < children.length; i++) {
         mount(children[i], container, isSVG)
       }
-      vnode.el = children[0].el
   }
 }
 
@@ -164,3 +135,58 @@ function mountPortal(vnode, container, isSVG) {
   mountText(placeholder, container)
   vnode.el = placeholder.el
 }
+
+function mountComponent(vnode, container, isSVG) {
+  if (vnode.flags & VNodeFlags.COMPONENT_STATEFUL) {
+    mountStatefulComponent(vnode, container, isSVG)
+  } else {
+    mountFunctionalComponent(vnode, container, isSVG)
+  }
+}
+
+function mountStatefulComponent(vnode, container, isSVG) {
+  const instance = new vnode.tag()
+  instance.$vnode = instance.render()
+  mount(instance.$vnode, container, isSVG)
+}
+
+function mountFunctionalComponent(vnode, container, isSVG) {
+  const $vnode = vnode.tag()
+  mount($vnode, container, isSVG)
+  vnode.el = $vnode.el
+}
+
+// eslint-disable-next-line no-unused-vars
+function patch(prevVNode, nextVNode, container) {
+  const nextFlags = nextVNode.flags
+  const prevFlags = prevVNode.flags
+
+  if (prevFlags !== nextFlags) {
+    replaceVNode(prevVNode, nextVNode, container)
+  } else if (nextFlags & VNodeFlags.ELEMENT) {
+    patchElement(prevVNode, nextVNode, container)
+  } else if (nextFlags & VNodeFlags.COMPONENT) {
+    patchComponent(prevVNode, nextVNode, container)
+  } else if (nextFlags & VNodeFlags.TEXT) {
+    patchText(prevVNode, nextVNode)
+  } else if (nextFlags & VNodeFlags.FRAGMENT) {
+    patchFragment(prevVNode, nextVNode, container)
+  } else if (nextFlags & VNodeFlags.PORTAL) {
+    patchPortal(prevVNode, nextVNode)
+  }
+}
+
+function replaceVNode(prevVNode, nextVNode, container) {
+  container.removeChild(prevVNode.el)
+  mount(nextVNode, container)
+}
+
+function patchElement() {}
+
+function patchComponent() {}
+
+function patchText() {}
+
+function patchFragment() {}
+
+function patchPortal() {}

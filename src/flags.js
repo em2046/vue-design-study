@@ -27,11 +27,11 @@ const ChildrenFlags = {
   NO_CHILDREN: 1,
   SINGLE_VNODE: 1 << 1,
 
-  KEYED_VNODE: 1 << 2,
-  NONE_KEYED_VNODE: 1 << 3
+  KEYED_VNODES: 1 << 2,
+  NONE_KEYED_VNODES: 1 << 3
 }
 
 ChildrenFlags.MULTIPLE_VNODES =
-  ChildrenFlags.KEYED_VNODE | ChildrenFlags.NONE_KEYED_VNODE
+  ChildrenFlags.KEYED_VNODES | ChildrenFlags.NONE_KEYED_VNODES
 
 export { VNodeFlags, ChildrenFlags }
