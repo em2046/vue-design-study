@@ -1,8 +1,8 @@
 import { VNodeFlags, ChildrenFlags } from './flags'
 import { createTextVNode } from './h'
+import { patchData } from './patchData'
 
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg'
-const domPropsRE = /[^\w-]|^(?:value|checked|selected|muted)$/
 
 export default function render(vnode, container) {
   const prevVNode = container.vnode
@@ -49,31 +49,7 @@ function mountElement(vnode, container, isSVG) {
   const data = vnode.data
   if (data) {
     Object.keys(data).forEach(key => {
-      let value = data[key]
-      switch (key) {
-        case 'style':
-          Object.keys(data.style).forEach(k => {
-            let style = data.style
-            el.style[k] = style[k]
-          })
-          break
-        case 'class':
-          if (isSVG) {
-            el.setAttribute(key, value)
-          } else {
-            el.className = value
-          }
-          break
-        default:
-          if (key[0] === 'o' && key[1] === 'n') {
-            el.addEventListener(key.slice(2), value)
-          } else if (domPropsRE.test(key)) {
-            el[key] = value
-          } else {
-            el.setAttribute(key, value)
-          }
-          break
-      }
+      patchData(el, key, null, data[key])
     })
   }
 
@@ -181,7 +157,36 @@ function replaceVNode(prevVNode, nextVNode, container) {
   mount(nextVNode, container)
 }
 
-function patchElement() {}
+function patchElement(prevVNode, nextVNode, container) {
+  if (prevVNode.tag !== nextVNode.tag) {
+    replaceVNode(prevVNode, nextVNode, container)
+    return
+  }
+
+  const el = (nextVNode.el = prevVNode.el)
+  const prevData = prevVNode.data
+  const nextData = nextVNode.data
+
+  if (nextData) {
+    Object.keys(nextData).forEach(key => {
+      const prevValue = prevData[key]
+      const nextValue = nextData[key]
+      patchData(el, key, prevValue, nextValue)
+    })
+  }
+  if (prevData) {
+    Object.keys(prevData).forEach(key => {
+      const prevValue = prevData[key]
+      if (
+        prevValue &&
+        nextData &&
+        !Object.keys(nextData).some(nextDataKey => key === nextDataKey)
+      ) {
+        patchData(el, key, prevValue, null)
+      }
+    })
+  }
+}
 
 function patchComponent() {}
 

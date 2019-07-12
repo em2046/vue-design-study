@@ -2,6 +2,10 @@ import { h, Portal } from './h'
 import render from './render'
 import Component from './component'
 
+function handler() {
+  console.log('click me')
+}
+
 //region elementVNode
 // eslint-disable-next-line no-unused-vars
 const elementVNode = h(
@@ -23,11 +27,6 @@ const elementVNode = h(
     [h('div', null, '我是标题1'), h('div', null, '我是标题2')]
   )
 )
-
-function handler() {
-  console.log('click me')
-}
-
 //endregion
 
 //region svgVNode
@@ -140,17 +139,33 @@ const compVNode = h(MyStatefulComponent)
 // render(compVNode, document.getElementById('app'))
 //endregion
 
-const prevVNode = h('div', null, '旧的VNode')
+const prevVNode = h(
+  'div',
+  {
+    style: {
+      width: '100px',
+      height: '100px',
+      backgroundColor: '#ee9922'
+    },
+    onclick: handler
+  },
+  '旧的VNode'
+)
 
-class MyComponent {
-  render() {
-    return h('div', null, '新的VNode')
-  }
-}
-
-const nextVNode = h(MyComponent)
+const nextVNode = h(
+  'div',
+  {
+    style: {
+      width: '100px',
+      height: '100px',
+      border: '1px solid #22ee99'
+    }
+  },
+  '新的VNode'
+)
 
 render(prevVNode, document.getElementById('app'))
+
 setTimeout(() => {
   render(nextVNode, document.getElementById('app'))
 }, 2 * 1000)
