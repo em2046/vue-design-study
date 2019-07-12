@@ -139,29 +139,15 @@ const compVNode = h(MyStatefulComponent)
 // render(compVNode, document.getElementById('app'))
 //endregion
 
-const prevVNode = h(
-  'div',
-  null,
-  h('p', {
-    style: {
-      height: '100px',
-      width: '100px',
-      background: '#e92'
-    }
-  })
-)
+const prevVNode = h('div', null, [
+  h('p', null, '旧的子节点1'),
+  h('p', null, '旧的子节点2')
+])
 
-const nextVNode = h(
-  'div',
-  null,
-  h('p', {
-    style:{
-      height: '100px',
-      width: '100px',
-      background: '#29e'
-    }
-  })
-)
+const nextVNode = h('div', null, [
+  h('p', null, '新的子节点1'),
+  h('p', null, '新的子节点2')
+])
 
 render(prevVNode, document.getElementById('app'))
 

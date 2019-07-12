@@ -208,28 +208,51 @@ function patchChildren(
           patch(prevChildren, nextChildren, container)
           break
         case ChildrenFlags.NO_CHILDREN:
+          container.removeChild(prevChildren.el)
           break
         default:
+          container.removeChild(prevChildren.el)
+          for (let i = 0; i < nextChildren.length; i++) {
+            mount(nextChildren[i], container)
+          }
           break
       }
       break
     case ChildrenFlags.NO_CHILDREN:
       switch (nextChildFlags) {
         case ChildrenFlags.SINGLE_VNODE:
+          mount(nextChildren, container)
           break
         case ChildrenFlags.NO_CHILDREN:
+          //do nothing
           break
         default:
+          for (let i = 0; i < nextChildren.length; i++) {
+            mount(nextChildren[i], container)
+          }
           break
       }
       break
     default:
       switch (nextChildFlags) {
         case ChildrenFlags.SINGLE_VNODE:
+          for (let i = 0; i < prevChildren.length; i++) {
+            container.removeChild(prevChildren[i].el)
+          }
+          mount(nextChildren, container)
           break
         case ChildrenFlags.NO_CHILDREN:
+          for (let i = 0; i < prevChildren.length; i++) {
+            container.removeChild(prevChildren[i].el)
+          }
           break
         default:
+          for (let i = 0; i < prevChildren.length; i++) {
+            container.removeChild(prevChildren[i].el)
+          }
+          for (let i = 0; i < nextChildren.length; i++) {
+            mount(nextChildren[i], container)
+          }
           break
       }
       break
