@@ -121,9 +121,24 @@ function mountComponent(vnode, container, isSVG) {
 }
 
 function mountStatefulComponent(vnode, container, isSVG) {
-  const instance = new vnode.tag()
-  instance.$vnode = instance.render()
-  mount(instance.$vnode, container, isSVG)
+  const instance = (vnode.children = new vnode.tag())
+  instance.$props = vnode.data
+
+  instance._update = function() {
+    if (instance._mounted) {
+      const prevVNode = instance.$vnode
+      const nextVNode = (instance.$vnode = instance.render())
+      patch(prevVNode, nextVNode, prevVNode.el.parentNode)
+      instance.$el = vnode.el = instance.$vnode.el
+    } else {
+      instance.$vnode = instance.render()
+      mount(instance.$vnode, container, isSVG)
+      instance._mounted = true
+      instance.$el = vnode.el = instance.$vnode.el
+      instance.mounted && instance.mounted()
+    }
+  }
+  instance._update()
 }
 
 function mountFunctionalComponent(vnode, container, isSVG) {
@@ -131,6 +146,7 @@ function mountFunctionalComponent(vnode, container, isSVG) {
   mount($vnode, container, isSVG)
   vnode.el = $vnode.el
 }
+
 // endregion
 
 // region patch
@@ -155,6 +171,10 @@ function patch(prevVNode, nextVNode, container) {
 
 function replaceVNode(prevVNode, nextVNode, container) {
   container.removeChild(prevVNode.el)
+  if (prevVNode.flags & VNodeFlags.COMPONENT_STATEFUL_NORMAL) {
+    const instance = prevVNode.children
+    instance.unmounted && instance.unmounted()
+  }
   mount(nextVNode, container)
 }
 
@@ -262,8 +282,6 @@ function patchChildren(
   }
 }
 
-function patchComponent() {}
-
 function patchText(prevVNode, nextVNode) {
   const el = (nextVNode.el = prevVNode.el)
   if (nextVNode.children !== prevVNode.children) {
@@ -325,4 +343,16 @@ function patchPortal(prevVNode, nextVNode) {
     }
   }
 }
+
+function patchComponent(prevVNode, nextVNode, container) {
+  if (nextVNode.tag !== prevVNode.tag) {
+    replaceVNode(prevVNode, nextVNode, container)
+  }
+  if (nextVNode.flags & VNodeFlags.COMPONENT_STATEFUL_NORMAL) {
+    const instance = (nextVNode.children = prevVNode.children)
+    instance.$props = nextVNode.data
+    instance._update()
+  }
+}
+
 // endregion
