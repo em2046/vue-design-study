@@ -1,28 +1,19 @@
 import { h } from './h'
 import render from './render'
 
-function MyFunctionalComp(props) {
-  return h('div', null, props.text)
-}
+let oldVNode = h('ol', null, [
+  h('li', { key: 'a' }, '节点1'),
+  h('li', { key: 'b' }, '节点2'),
+  h('li', { key: 'c' }, '节点3')
+])
+render(oldVNode, document.getElementById('app'))
 
-class ParentComponent {
-  constructor() {
-    this.localState = 'one'
-  }
-
-  mounted() {
-    setTimeout(() => {
-      this.localState = 'two'
-      this._update()
-    }, 2000)
-  }
-
-  render() {
-    return h(MyFunctionalComp, {
-      text: this.localState
-    })
-  }
-}
-
-const compVNode = h(ParentComponent)
-render(compVNode, document.getElementById('app'))
+let newVNode = h('ol', null, [
+  h('li', { key: 'c' }, '节点3'),
+  h('li', { key: 'a' }, '节点1'),
+  h('li', { key: 'd' }, '节点4'),
+  h('li', { key: 'b' }, '节点2')
+])
+setTimeout(() => {
+  render(newVNode, document.getElementById('app'))
+}, 1000)
