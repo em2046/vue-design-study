@@ -142,9 +142,28 @@ function mountStatefulComponent(vnode, container, isSVG) {
 }
 
 function mountFunctionalComponent(vnode, container, isSVG) {
-  const $vnode = vnode.tag()
-  mount($vnode, container, isSVG)
-  vnode.el = $vnode.el
+  vnode.handle = {
+    prev: null,
+    next: vnode,
+    container,
+    update: () => {
+      if (vnode.handle.prev) {
+        const prevVNode = vnode.handle.prev
+        const nextVNode = vnode.handle.next
+        const prevTree = prevVNode.children
+        const props = nextVNode.data
+        const nextTree = (nextVNode.children = nextVNode.tag(props))
+        patch(prevTree, nextTree, vnode.handle.container)
+      } else {
+        const props = vnode.data
+        const $vnode = (vnode.children = vnode.tag(props))
+        mount($vnode, container, isSVG)
+        vnode.el = $vnode.el
+      }
+    }
+  }
+
+  vnode.handle.update()
 }
 
 // endregion
@@ -347,11 +366,17 @@ function patchPortal(prevVNode, nextVNode) {
 function patchComponent(prevVNode, nextVNode, container) {
   if (nextVNode.tag !== prevVNode.tag) {
     replaceVNode(prevVNode, nextVNode, container)
-  }
-  if (nextVNode.flags & VNodeFlags.COMPONENT_STATEFUL_NORMAL) {
+  } else if (nextVNode.flags & VNodeFlags.COMPONENT_STATEFUL_NORMAL) {
     const instance = (nextVNode.children = prevVNode.children)
     instance.$props = nextVNode.data
     instance._update()
+  } else {
+    const handle = (nextVNode.handle = prevVNode.handle)
+    handle.prev = prevVNode
+    handle.next = nextVNode
+    handle.container = container
+
+    handle.update()
   }
 }
 

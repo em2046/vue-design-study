@@ -1,35 +1,28 @@
 import { h } from './h'
 import render from './render'
 
-class ChildComponent1 {
-  render() {
-    return h('div', null, '子组件1')
-  }
-}
-
-class ChildComponent2 {
-  render() {
-    return h('div', null, '子组件2')
-  }
+function MyFunctionalComp(props) {
+  return h('div', null, props.text)
 }
 
 class ParentComponent {
   constructor() {
-    this.isTrue = true
+    this.localState = 'one'
   }
 
   mounted() {
     setTimeout(() => {
-      this.isTrue = false
+      this.localState = 'two'
       this._update()
     }, 2000)
   }
 
   render() {
-    return this.isTrue ? h(ChildComponent1) : h(ChildComponent2)
+    return h(MyFunctionalComp, {
+      text: this.localState
+    })
   }
 }
 
 const compVNode = h(ParentComponent)
-
 render(compVNode, document.getElementById('app'))
