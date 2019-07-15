@@ -9,9 +9,8 @@ let oldVNode = h('ol', null, [
 render(oldVNode, document.getElementById('app'))
 
 let newVNode = h('ol', null, [
-  h('li', { key: 'c' }, '节点3'),
-  h('li', { key: 'a' }, '节点1'),
   h('li', { key: 'd' }, '节点4'),
+  h('li', { key: 'a' }, '节点1'),
   h('li', { key: 'b' }, '节点2')
 ])
 setTimeout(() => {

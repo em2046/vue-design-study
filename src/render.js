@@ -317,6 +317,16 @@ function patchChildren(
                 mount(nextVNode, container, false, refNode)
               }
             }
+
+            for (let i = 0; i < prevChildren.length; i++) {
+              const prevVNode = prevChildren[i]
+              const has = nextChildren.find(nextVNode => {
+                return nextVNode.key === prevVNode.key
+              })
+              if (!has) {
+                container.removeChild(prevVNode.el)
+              }
+            }
           }
           break
       }
