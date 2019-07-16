@@ -290,41 +290,66 @@ function patchChildren(
           break
         default:
           {
-            let lastIndex = 0
-            for (let i = 0; i < nextChildren.length; i++) {
-              const nextVNode = nextChildren[i]
-              let j = 0
-              let find = false
-              for (j; j < prevChildren.length; j++) {
-                const prevVNode = prevChildren[j]
-                if (nextVNode.key === prevVNode.key) {
-                  find = true
-                  patch(prevVNode, nextVNode, container)
-                  if (j < lastIndex) {
-                    const refNode = nextChildren[i - 1].el.nextSibling
-                    container.insertBefore(prevVNode.el, refNode)
-                  } else {
-                    lastIndex = j
-                  }
-                  break
+            let oldStartIdx = 0
+            let oldEndIdx = prevChildren.length - 1
+            let newStartIdx = 0
+            let newEndIdx = nextChildren.length - 1
+
+            let oldStartVNode = prevChildren[oldStartIdx]
+            let oldEndVNode = prevChildren[oldEndIdx]
+            let newStartVNode = nextChildren[newStartIdx]
+            let newEndVNode = nextChildren[newEndIdx]
+
+            while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
+              if (!oldStartVNode) {
+                oldStartVNode = prevChildren[++oldStartIdx]
+              } else if (!oldEndVNode) {
+                oldEndVNode = prevChildren[--oldEndIdx]
+              } else if (oldStartVNode.key === newStartVNode.key) {
+                patch(oldStartVNode, newStartVNode, container)
+                oldStartVNode = prevChildren[++oldStartIdx]
+                newStartVNode = nextChildren[++newStartIdx]
+              } else if (oldEndVNode.key === newEndVNode.key) {
+                patch(oldEndVNode, newEndVNode, container)
+                oldEndVNode = prevChildren[--oldEndIdx]
+                newEndVNode = nextChildren[--newEndIdx]
+              } else if (oldStartVNode.key === newEndVNode.key) {
+                patch(oldStartVNode, newEndVNode, container)
+                container.insertBefore(
+                  oldStartVNode.el,
+                  oldEndVNode.el.nextSibling
+                )
+                oldStartVNode = prevChildren[++oldStartIdx]
+                newEndVNode = nextChildren[--newEndIdx]
+              } else if (oldEndVNode.key === newStartVNode.key) {
+                patch(oldEndVNode, newStartVNode, container)
+                container.insertBefore(oldEndVNode.el, oldStartVNode.el)
+                oldEndVNode = prevChildren[--oldEndIdx]
+                newStartVNode = nextChildren[++newStartIdx]
+              } else {
+                const idxInOld = prevChildren.findIndex(node => {
+                  return node.key === newStartVNode.key
+                })
+                console.log('idxInOld', idxInOld)
+                if (idxInOld >= 0) {
+                  const vnodeToMove = prevChildren[idxInOld]
+                  patch(vnodeToMove, newStartVNode, container)
+                  container.insertBefore(vnodeToMove.el, oldStartVNode.el)
+                  prevChildren[idxInOld] = undefined
+                } else {
+                  mount(newStartVNode, container, false, oldStartVNode.el)
                 }
-              }
-              if (!find) {
-                const refNode =
-                  i - 1 < 0
-                    ? prevChildren[0].el
-                    : nextChildren[i - 1].el.nextSibling
-                mount(nextVNode, container, false, refNode)
+                newStartVNode = nextChildren[++newStartIdx]
               }
             }
 
-            for (let i = 0; i < prevChildren.length; i++) {
-              const prevVNode = prevChildren[i]
-              const has = nextChildren.find(nextVNode => {
-                return nextVNode.key === prevVNode.key
-              })
-              if (!has) {
-                container.removeChild(prevVNode.el)
+            if (oldEndIdx < oldStartIdx) {
+              for (let i = newStartIdx; i <= newEndIdx; i++) {
+                mount(nextChildren[i], container, false, oldStartVNode.el)
+              }
+            } else if (newEndIdx < newStartIdx) {
+              for (let i = oldStartIdx; i <= oldEndIdx; i++) {
+                container.removeChild(prevChildren[i].el)
               }
             }
           }
