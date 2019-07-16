@@ -293,7 +293,6 @@ function patchChildren(
             let j = 0
             let prevVNode = prevChildren[j]
             let nextVNode = nextChildren[j]
-
             let prevEnd = prevChildren.length - 1
             let nextEnd = nextChildren.length - 1
 
@@ -310,7 +309,6 @@ function patchChildren(
 
               prevVNode = prevChildren[prevEnd]
               nextVNode = nextChildren[nextEnd]
-
               while (prevVNode.key === nextVNode.key) {
                 patch(prevVNode, nextVNode, container)
                 prevEnd--
@@ -350,17 +348,16 @@ function patchChildren(
               for (let i = nextStart; i <= nextEnd; i++) {
                 keyIndex[nextChildren[i].key] = i
               }
-
               let patched = 0
               for (let i = prevStart; i <= prevEnd; i++) {
-                const prevVNode = prevChildren[i]
+                prevVNode = prevChildren[i]
 
                 if (patched < nextLeft) {
                   const k = keyIndex[prevVNode.key]
-
                   if (typeof k !== 'undefined') {
                     nextVNode = nextChildren[k]
                     patch(prevVNode, nextVNode, container)
+                    patched++
                     source[k - nextStart] = i
                     if (k < pos) {
                       moved = true
@@ -393,12 +390,11 @@ function patchChildren(
                         ? nextChildren[nextPos].el
                         : null
                     )
-                  }
-
-                  if (i !== seq[j]) {
+                  } else if (i !== seq[j]) {
                     const pos = i + nextStart
                     const nextVNode = nextChildren[pos]
                     const nextPos = pos + 1
+
                     container.insertBefore(
                       nextVNode.el,
                       nextPos < nextChildren.length
