@@ -289,7 +289,129 @@ function patchChildren(
           }
           break
         default:
+          {
+            let j = 0
+            let prevVNode = prevChildren[j]
+            let nextVNode = nextChildren[j]
 
+            let prevEnd = prevChildren.length - 1
+            let nextEnd = nextChildren.length - 1
+
+            outer: {
+              while (prevVNode.key === nextVNode.key) {
+                patch(prevVNode, nextVNode, container)
+                j++
+                if (j > prevEnd || j > nextEnd) {
+                  break outer
+                }
+                prevVNode = prevChildren[j]
+                nextVNode = nextChildren[j]
+              }
+
+              prevVNode = prevChildren[prevEnd]
+              nextVNode = nextChildren[nextEnd]
+
+              while (prevVNode.key === nextVNode.key) {
+                patch(prevVNode, nextVNode, container)
+                prevEnd--
+                nextEnd--
+                if (j > prevEnd || j > nextEnd) {
+                  break outer
+                }
+                prevVNode = prevChildren[prevEnd]
+                nextVNode = nextChildren[nextEnd]
+              }
+            }
+
+            if (j > prevEnd && j <= nextEnd) {
+              const nextPos = nextEnd + 1
+              const refNode =
+                nextPos < nextChildren.length ? nextChildren[nextPos].el : null
+              while (j <= nextEnd) {
+                mount(nextChildren[j++], container, false, refNode)
+              }
+            } else if (j > nextEnd) {
+              while (j <= prevEnd) {
+                container.removeChild(prevChildren[j++].el)
+              }
+            } else {
+              const nextLeft = nextEnd - j + 1
+              const source = []
+              for (let i = 0; i < nextLeft; i++) {
+                source.push(-1)
+              }
+
+              const prevStart = j
+              const nextStart = j
+              let moved = false
+              let pos = 0
+
+              const keyIndex = {}
+              for (let i = nextStart; i <= nextEnd; i++) {
+                keyIndex[nextChildren[i].key] = i
+              }
+
+              let patched = 0
+              for (let i = prevStart; i <= prevEnd; i++) {
+                const prevVNode = prevChildren[i]
+
+                if (patched < nextLeft) {
+                  const k = keyIndex[prevVNode.key]
+
+                  if (typeof k !== 'undefined') {
+                    nextVNode = nextChildren[k]
+                    patch(prevVNode, nextVNode, container)
+                    source[k - nextStart] = i
+                    if (k < pos) {
+                      moved = true
+                    } else {
+                      pos = k
+                    }
+                  } else {
+                    container.removeChild(prevVNode.el)
+                  }
+                } else {
+                  container.removeChild(prevVNode.el)
+                }
+              }
+
+              if (moved) {
+                // const seq = lis(source)
+                const seq = [0, 1]
+                let j = seq.length - 1
+                for (let i = nextLeft; i >= 0; i--) {
+                  if (source[i] === -1) {
+                    const pos = i + nextStart
+                    const nextVNode = nextChildren[pos]
+                    const nextPos = pos + 1
+
+                    mount(
+                      nextVNode,
+                      container,
+                      false,
+                      nextPos < nextChildren.length
+                        ? nextChildren[nextPos].el
+                        : null
+                    )
+                  }
+
+                  if (i !== seq[j]) {
+                    const pos = i + nextStart
+                    const nextVNode = nextChildren[pos]
+                    const nextPos = pos + 1
+                    container.insertBefore(
+                      nextVNode.el,
+                      nextPos < nextChildren.length
+                        ? nextChildren[nextPos].el
+                        : null
+                    )
+                  } else {
+                    j--
+                  }
+                }
+              }
+            }
+          }
           break
       }
       break
