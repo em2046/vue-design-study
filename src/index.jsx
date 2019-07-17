@@ -1,32 +1,31 @@
 // eslint-disable-next-line no-unused-vars
-import { h } from './h'
-import render from './render'
+import Meow from './main'
 
 const prevVNode = (
-  <ol className="old">
-    <li key="a">old-1</li>
-    <li key="b">old-2</li>
-    <li key="c">old-3</li>
-    <li key="d">old-4</li>
-    <li key="f">old-5</li>
-    <li key="h">old-6</li>
-    <li key="e">old-7</li>
+  <ol className="prev">
+    <li key="a">prev-1</li>
+    <li key="b">prev-2</li>
+    <li key="c">prev-3</li>
+    <li key="d">prev-4</li>
+    <li key="f">prev-5</li>
+    <li key="h">prev-6</li>
+    <li key="e">prev-7</li>
   </ol>
 )
 
 const nextVNode = (
-  <ol className="new">
-    <li key="a">new-1</li>
-    <li key="c">new-3</li>
-    <li key="d">new-4</li>
-    <li key="b">new-2</li>
-    <li key="g">new-7</li>
-    <li key="e">new-5</li>
+  <ol className="next">
+    <li key="a">next-1</li>
+    <li key="c">next-3</li>
+    <li key="d">next-4</li>
+    <li key="b">next-2</li>
+    <li key="g">next-7</li>
+    <li key="e">next-5</li>
   </ol>
 )
 
-render(prevVNode, document.getElementById('app'))
+Meow.render(prevVNode, document.getElementById('root'))
 
 setTimeout(() => {
-  render(nextVNode, document.getElementById('app'))
+  Meow.render(nextVNode, document.getElementById('root'))
 }, 1000)

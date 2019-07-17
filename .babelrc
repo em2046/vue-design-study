@@ -4,8 +4,8 @@
     [
       "@babel/plugin-transform-react-jsx",
       {
-        "pragma": "h",
-        "pragmaFrag": "Fragment",
+        "pragma": "Meow.h",
+        "pragmaFrag": "Meow.Fragment",
         "throwIfNamespace": false
       }
     ]
