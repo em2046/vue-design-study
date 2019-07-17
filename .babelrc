@@ -9,5 +9,6 @@
         "throwIfNamespace": false
       }
     ]
-  ]
+  ],
+  "presets": ["@babel/preset-env"]
 }

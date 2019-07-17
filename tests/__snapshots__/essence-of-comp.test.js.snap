@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`essence of comp virtual dom 1`] = `"<h1>prev</h1>"`;
+
+exports[`essence of comp virtual dom 2`] = `
+Object {
+  "_isVNode": true,
+  "childFlags": 2,
+  "children": Object {
+    "_isVNode": true,
+    "childFlags": 1,
+    "children": "prev",
+    "data": null,
+    "el": prev,
+    "flags": 64,
+    "tag": null,
+  },
+  "data": null,
+  "el": <h1>
+    prev
+  </h1>,
+  "flags": 1,
+  "key": null,
+  "tag": "h1",
+}
+`;
