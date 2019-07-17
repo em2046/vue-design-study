@@ -19,7 +19,7 @@ export function patchData(el, key, prevValue, nextValue) {
         })
       }
       break
-    case 'class':
+    case 'className':
       el.className = nextValue
       break
     default:

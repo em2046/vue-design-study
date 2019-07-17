@@ -3,12 +3,16 @@ import { VNodeFlags, ChildrenFlags } from './flags'
 export const Fragment = Symbol()
 export const Portal = Symbol()
 
-export function h(tag, data = null, children = null) {
+export function h(tag, data = null, ...children) {
+  if (children.length === 1) {
+    children = children[0]
+  }
+
   let flags = null
   if (typeof tag === 'string') {
     flags = tag === 'svg' ? VNodeFlags.ELEMENT_SVG : VNodeFlags.ELEMENT_HTML
-    if (data && data.class) {
-      data.class = normalizeClass(data.class)
+    if (data && data.className) {
+      data.className = normalizeClass(data.className)
     }
   } else if (tag === Fragment) {
     flags = VNodeFlags.FRAGMENT
