@@ -14,14 +14,14 @@ const prevVNode = (
 )
 
 const nextVNode = (
-  <ol className="next">
-    <li key="a">next-1</li>
-    <li key="c">next-3</li>
-    <li key="d">next-4</li>
-    <li key="b">next-2</li>
-    <li key="g">next-7</li>
-    <li key="e">next-5</li>
-  </ol>
+  <>
+    <div key="a">next-1</div>
+    <div key="c">next-3</div>
+    <div key="d">next-4</div>
+    <div key="b">next-2</div>
+    <div key="g">next-7</div>
+    <div key="e">next-5</div>
+  </>
 )
 
 Meow.render(prevVNode, document.getElementById('root'))
