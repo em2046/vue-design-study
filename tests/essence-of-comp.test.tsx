@@ -11,9 +11,15 @@ describe('essence of comp', () => {
     }
 
     const prevVNode = MyComponent({ title: 'prev' })
+    const nextVNode = (<h1>next</h1>)
 
     let $root = document.getElementById('root')
     render(prevVNode, $root)
+
+    expect($root.innerHTML).toMatchSnapshot()
+    expect(prevVNode).toMatchSnapshot()
+
+    render(nextVNode, $root)
 
     expect($root.innerHTML).toMatchSnapshot()
     expect(prevVNode).toMatchSnapshot()
