@@ -23,7 +23,7 @@ export default function render(vnode, container) {
 }
 
 // region mount
-function mount(vnode, container, isSVG, refNode) {
+function mount(vnode, container, isSVG = false, refNode = null) {
   const { flags } = vnode
   if (flags & VNodeFlags.ELEMENT) {
     mountElement(vnode, container, isSVG, refNode)

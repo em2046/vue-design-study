@@ -1,8 +1,9 @@
-import { h, Fragment } from './h'
+import { h, Fragment, Portal } from './h'
 import render from './render'
 
 const Meow = {
   Fragment,
+  Portal,
   render,
   h,
   createElement: h
